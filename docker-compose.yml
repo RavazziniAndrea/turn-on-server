@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    build: .
+    container_name: turn_on_server
+    ports:
+      - 5000:5000
+    volumes:
+      - ./app:/app
+    restart: always
