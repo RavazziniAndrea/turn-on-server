@@ -50,7 +50,42 @@
 <body>
 
     <h1>Turn ON</h1>
+    <br>
+    <div id="system-status" style="display: flex; align-items: center; gap: 10px;">
+      <span id="status-text">Sistema </span>
+      <span id="status-icon" style="font-size: 1.5rem;"></span>
+      <span id="timer" style="margin-left: auto;">Tempo rimanente: 0gg 00:00</span>
+    </div>
+    <script>
+    let status=document.getElementById("status-text");
+    let icon  =document.getElementById("status-icon");
+    if({{state}}){
+      status.textContent="Sistema acceso ";
+      icon.textContent = '🟢';
+      icon.style.color="green";
+    } else {
+      status.textContent="Sistema spento ";
+      icon.textContent = '🔴';
+      icon.style.color="red";
+    }
+    
+    let totalMinutes = {{minutes}};
+    function update_timer(){
+      if(totalMinutes > 0){
+        let days = Math.floor(totalMinutes / (24 * 60));
+        let hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+        let minutes = totalMinutes % 60;
+        if(Math.floor(hours / 10) == 0) hours = "0"+hours;
+        if(Math.floor(minutes / 10) == 0) minutes = "0"+minutes;
+        document.getElementById("timer").textContent = "Tempo rimanente: "+days+"gg "+hours+":"+minutes;
+        totalMinutes--;
+      }
+    }
+    update_timer()
+    setInterval(update_timer, 60*1000);
 
+    </script>
+    <br>
     <form method="POST" action="/">
         <label for="giorni">Giorni: <span id="giorniVal">0</span></label>
         <input type="range" id="giorni" name="giorni" min="0" max="7" value="0" oninput="document.getElementById('giorniVal').innerText=this.value">

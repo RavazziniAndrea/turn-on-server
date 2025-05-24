@@ -5,9 +5,9 @@ app = Flask(__name__)
 
 class Timing:
     def __init__(self, days=0, hours=0, minutes=0):
-        self.days = days
-        self.hours = hours
-        self.minutes = minutes
+        self.days = int(days)
+        self.hours = int(hours)
+        self.minutes = int(minutes)
     
     def get_minutes(self):
         return self.days*24*60 + self.hours*60 + self.minutes
@@ -24,9 +24,18 @@ def send_wol():
 def shutdown():
     pass
 
+# 0 OFF - 1 ON
+def get_server_state():
+    return 0 
+
+def get_server_minutes():
+    return 200
+
 @app.route("/")
 def index():
-    return render_template("index.html", message="OK")
+    server_minutes = get_server_minutes()
+    state = 0 if server_minutes <= 0 else 1
+    return render_template("index.html", state=state, minutes=server_minutes)
 
 
 @app.route("/", methods=["POST"])
@@ -40,10 +49,12 @@ def command():
     elif action == "OFF":
         shutdown()
     elif action == "KEEP_ON":
-        send_wol()
+        timing = Timing(100, 0, 0)
     else:
         print("Action not found!", flush=True)
-    return render_template("index.html", days=timing.days, hours=timing.hours, minutes=timing.minutes)
+
+    state = 0 if timing.get_minutes() <= 0 else 1
+    return render_template("index.html", state=state, minutes=timing.get_minutes())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
