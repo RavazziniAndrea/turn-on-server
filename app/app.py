@@ -1,4 +1,5 @@
 import time
+import paramiko
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
@@ -29,7 +30,14 @@ def get_server_state():
     return 0 
 
 def get_server_minutes():
-    return 200
+    #TODO the problem is that this is inside a container!
+    #If this is a problem, it might be useful to change the base docker img
+    ssh = paramiko.SSHClient()
+    ssh.connect("127.0.0.1", username="", password="")
+    cmd = "cat /run/systemd/shutdown/scheduled | head -n1"
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+    shutdown_time=str(ssh_stdout).split('=')[1].[:-6] #TODO handle possible errors
+
 
 @app.route("/")
 def index():
