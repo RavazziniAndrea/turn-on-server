@@ -6,18 +6,36 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 def send_wol(timing):
-    pass
+#TODO
+# - if cannot connect 
+#   - send wol
+#   - wait until can ssh
+# - set shutdown
+    minutes = timing.get_minutes()
+    print(f"mintuui: {minutes}", flush=True)
+    cmd = "ls"
+    out, err = SshHandler.run_ssh_cmd("", "", cmd)
 
-def shutdown():
-    pass
+
+def shutdown(timing):
+    minutes = timing.get_minutes()
+    print(f"mintuui: {minutes}", flush=True)
+    cmd = "ls"
+    out, err = SshHandler.run_ssh_cmd("", "", cmd)
 
 
 def get_server_minutes():
-    #TODO the problem is that this is inside a container!
-    #If this is a problem, it might be useful to change the base docker img
     cmd = "cat /run/systemd/shutdown/scheduled | head -n1"
-    out, err = SshHandler.run_ssh_cmd("127.0.0.1", "", "", cmd)
-    shutdown_time=str(out).split('=')[1][:-6] #TODO handle possible errors
+    out, err = SshHandler.run_ssh_cmd("", "", cmd)
+    print(out, flush=True)
+    print(err, flush=True)
+    shutdown_time = 0
+    if err == "":
+        shutdown_time=out.split('=')[1][:-6] #TODO handle possible errors
+        pritnt(f"shut time: {shutdown_time}")
+    else:
+        print(err)
+    return shutdown_time
 
 # 0 OFF - 1 ON
 def get_state_from_minutes(minutes):
@@ -39,7 +57,7 @@ def command():
         timing = Timing(request.form.get("giorni"), request.form.get("ore"), request.form.get("minuti"))
         send_wol(timing)
     elif action == "OFF":
-        shutdown()
+        shutdown(timing)
     elif action == "KEEP_ON":
         timing = Timing(100, 0, 0)
         send_wol(timing)
