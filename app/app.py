@@ -1,52 +1,52 @@
 import time
+import socket
 from ssh_handler import SshHandler
 from timing import Timing
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-def send_wol(timing):
+def wake_and_set(timing, keep_on=False):
 #TODO
 # - if cannot connect 
 #   - send wol
 #   - wait until can ssh
 # - set shutdown
-    minutes = timing.get_minutes()
-    print(f"mintuui: {minutes}", flush=True)
-    cmd = "ls"
-    out, err = SshHandler.run_ssh_cmd("", "", cmd)
+    if not keep_on:
+        shutdown(timing)
 
+def shutdown_now():
+    shutdown(Timing())
 
 def shutdown(timing):
     minutes = timing.get_minutes()
-    print(f"mintuui: {minutes}", flush=True)
-    cmd = "ls"
-    out, err = SshHandler.run_ssh_cmd("", "", cmd)
+    cmd = f"sudo shutdown +{minutes}"
+    out, err = SshHandler.run_ssh_cmd("10.0.42.250", "ravazz", cmd)
 
 
-def get_server_minutes():
-    cmd = "cat /run/systemd/shutdown/scheduled | head -n1"
-    out, err = SshHandler.run_ssh_cmd("", "", cmd)
+def get_server_shutdown_str() -> str:
+    #TODO se non reaggiungibile, tornare "0"
+    cmd = "sudo shutdown --show 2>&1"
+    out, err = SshHandler.run_ssh_cmd("10.0.42.250", "ravazz", cmd)
     print(out, flush=True)
     print(err, flush=True)
-    shutdown_time = 0
-    if err == "":
-        shutdown_time=out.split('=')[1][:-6] #TODO handle possible errors
-        pritnt(f"shut time: {shutdown_time}")
+    if out.startswith("No"): #No scheduled shutdown
+        shutdown_str = "MAI"
+    elif out == "OFF": #OFF (from run_ssh_cmd)
+        shutdown_str = "OFF"
     else:
-        print(err)
-    return shutdown_time
+        shutdown_str = out[23:46]
+        print(f"shut time: {shutdown_str}", flush=True)
+    return shutdown_str
 
-# 0 OFF - 1 ON
-def get_state_from_minutes(minutes):
-    return 0 if minutes <= 0 else 1
+
+def render_page():
+    shutdown_str = get_server_shutdown_str()
+    return render_template("index.html", shutdown_str=shutdown_str)
 
 @app.route("/")
 def index():
-    server_minutes = get_server_minutes()
-    state = get_state_from_minutes(server_minutes)
-    return render_template("index.html", state=state, minutes=server_minutes)
-
+    return render_page()
 
 @app.route("/", methods=["POST"])
 def command():
@@ -55,18 +55,15 @@ def command():
     timing = Timing()
     if action == "ON":
         timing = Timing(request.form.get("giorni"), request.form.get("ore"), request.form.get("minuti"))
-        send_wol(timing)
+        wake_and_set(timing)
     elif action == "OFF":
-        shutdown(timing)
+        shutdown_now()
     elif action == "KEEP_ON":
-        timing = Timing(100, 0, 0)
-        send_wol(timing)
+        wake_and_set(timing, True)
     else:
         print("Action not found!", flush=True)
+    return render_page()
 
-    minutes = timing.get_minutes()
-    state = get_state_from_minutes(minutes)
-    return render_template("index.html", state=state, minutes=minutes)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

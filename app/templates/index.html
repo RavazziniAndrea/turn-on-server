@@ -59,7 +59,8 @@
     <script>
     let status=document.getElementById("status-text");
     let icon  =document.getElementById("status-icon");
-    if({{state}}){
+    var shutdown = "{{shutdown_str}}"
+    if(shutdown != "OFF"){
       status.textContent="Sistema acceso ";
       icon.textContent = '🟢';
       icon.style.color="green";
@@ -69,20 +70,12 @@
       icon.style.color="red";
     }
     
-    let totalMinutes = {{minutes}};
-    function update_timer(){
-      if(totalMinutes > 0){
-        let days = Math.floor(totalMinutes / (24 * 60));
-        let hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-        let minutes = totalMinutes % 60;
-        if(Math.floor(hours / 10) == 0) hours = "0"+hours;
-        if(Math.floor(minutes / 10) == 0) minutes = "0"+minutes;
-        document.getElementById("timer").textContent = "Tempo rimanente: "+days+"gg "+hours+":"+minutes;
-        totalMinutes--;
-      }
+    var time_text = "Accendere il server"
+    console.log(shutdown)
+    if(shutdown != "OFF"){
+      time_text = "Spegnimento: "+shutdown;
     }
-    update_timer()
-    setInterval(update_timer, 60*1000);
+    document.getElementById("timer").textContent = time_text
 
     </script>
     <br>
