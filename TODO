@@ -1,3 +1,0 @@
-- Implement ssh communication
-- Add shutdown [options] management with server, to actually shutdown and detect pending (/etc/systemd/shutdown/scheduled)
-- Add WOL

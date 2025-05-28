@@ -4,26 +4,27 @@ import socket
 class SshHandler:
     ssh = paramiko.SSHClient()
     key_path = "/root/.ssh/id_ed25519"
+    host = ""
+    username = ""
+    port=22
+    timeout=1
 
     def is_server_on() -> bool:
-        host = "10.0.42.250"
-        port=22
-        timeout=1
         try:
-            with socket.create_connection((host, port), timeout=timeout):
+            with socket.create_connection((SshHandler.host, SshHandler.port), timeout=SshHandler.timeout):
                 return True
         except (socket.timeout, socket.error):
             return False
 
-    def _connect(ip_addr, username):
+    def _connect():
         key = paramiko.Ed25519Key(filename=SshHandler.key_path)
         SshHandler.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        SshHandler.ssh.connect(ip_addr, username=username , pkey=key)
+        SshHandler.ssh.connect(SshHandler.host, username=SshHandler.username , pkey=key)
 
-    def run_ssh_cmd(ip_addr, username, cmd) -> str:
+    def run_ssh_cmd(cmd) -> str:
         if not SshHandler.is_server_on():
             return "OFF", "OFF"
-        SshHandler._connect(ip_addr, username)
+        SshHandler._connect()
         stdin, stdout, stderr = SshHandler.ssh.exec_command(cmd)
         s_stdout=stdout.read().decode()
         s_stderr=stderr.read().decode()

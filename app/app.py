@@ -21,13 +21,13 @@ def shutdown_now():
 def shutdown(timing):
     minutes = timing.get_minutes()
     cmd = f"sudo shutdown +{minutes}"
-    out, err = SshHandler.run_ssh_cmd("10.0.42.250", "ravazz", cmd)
+    out, err = SshHandler.run_ssh_cmd(cmd)
 
 
 def get_server_shutdown_str() -> str:
     #TODO se non reaggiungibile, tornare "0"
     cmd = "sudo shutdown --show 2>&1"
-    out, err = SshHandler.run_ssh_cmd("10.0.42.250", "ravazz", cmd)
+    out, err = SshHandler.run_ssh_cmd(cmd)
     print(out, flush=True)
     print(err, flush=True)
     if out.startswith("No"): #No scheduled shutdown
