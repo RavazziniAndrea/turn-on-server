@@ -21,7 +21,7 @@ class SshHandler:
         SshHandler.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         SshHandler.ssh.connect(SshHandler.host, username=SshHandler.username , pkey=key)
 
-    def run_ssh_cmd(cmd) -> str:
+    def run_ssh_cmd(cmd) -> (str, str):
         if not SshHandler.is_server_on():
             return "OFF", "OFF"
         SshHandler._connect()

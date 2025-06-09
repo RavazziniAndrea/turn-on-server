@@ -1,100 +1,42 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn ON</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            max-width: 500px;
-            margin: auto;
-        }
-        h1 {
-            text-align: center;
-        }
-        label, input, button {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        input[type=range] {
-            width: 100%;
-        }
-        .slider-value {
-            text-align: right;
-            margin-bottom: 10px;
-        }
-        .button-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .button-group button {
-            padding: 12px;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        @media (min-width: 400px) {
-            .button-group {
-                flex-direction: row;
-                gap: 10px;
-            }
-            .button-group button {
-                flex: 1;
-                margin-bottom: 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      margin-left: 8px;
+    }
+  </style>
 </head>
 <body>
+  <h2 id="txt">Server ---</h2>
+  <form method="POST" action="do_action">
+    <input id="btn_on_off" type="submit" value="---"/>
+  </form>
 
-    <h1>Turn ON</h1>
-    <br>
-    <div id="system-status" style="display: flex; align-items: center; gap: 10px;">
-      <span id="status-text">--- </span>
-      <span id="status-icon" style="font-size: 1.5rem;"></span>
-      <span id="timer" style="margin-left: auto;">--- </span>
-    </div>
-    <script>
-    let status=document.getElementById("status-text");
-    let icon  =document.getElementById("status-icon");
-    var shutdown = "{{shutdown_str}}"
-    if(shutdown != "OFF"){
-      status.textContent="Sistema acceso ";
-      icon.textContent = '🟢';
-      icon.style.color="green";
-    } else {
-      status.textContent="Sistema spento ";
-      icon.textContent = '🔴';
-      icon.style.color="red";
-    }
+  <script>
+    var is_on = {{status}};
+    var time_on = "{{time_on}}";
     
-    var time_text = "Accendere il server"
-    console.log(shutdown)
-    if(shutdown != "OFF"){
-      time_text = "Spegnimento: "+shutdown;
+    var txt_elem = document.getElementById("txt");
+    var btn_elem = document.getElementById("btn_on_off");
+    if(is_on){
+      txt_elem.innerHTML="Server acceso da " + time_on;
+      btn_elem.value="Spegni";
+    } else {
+      txt_elem.innerHTML="Server OFF";
+      btn_elem.value="Accendi";
     }
-    document.getElementById("timer").textContent = time_text
+  </script>
 
-    </script>
-    <br>
-    <form method="POST" action="/">
-        <label for="giorni">Giorni: <span id="giorniVal">0</span></label>
-        <input type="range" id="giorni" name="giorni" min="0" max="7" value="0" oninput="document.getElementById('giorniVal').innerText=this.value">
-
-        <label for="ore">Ore: <span id="oreVal">0</span></label>
-        <input type="range" id="ore" name="ore" min="0" max="23" value="0" oninput="document.getElementById('oreVal').innerText=this.value">
-
-        <label for="minuti">Minuti: <span id="minutiVal">0</span></label>
-        <input type="range" id="minuti" name="minuti" min="0" max="59" value="0" oninput="document.getElementById('minutiVal').innerText=this.value">
-
-        <div class="button-group">
-            <button type="submit" name="action" value="ON">Accendi</button>
-            <button type="submit" name="action" value="OFF">Spegni</button>
-            <button type="submit" name="action" value="KEEP_ON">Tieni acceso</button>
-        </div>
-    </form>
 
 </body>
 </html>
