@@ -1,5 +1,6 @@
 import time
 import socket
+from wakeonlan import send_magic_packet
 from ssh_handler import SshHandler
 from timing import Timing
 from flask import Flask, render_template, request
@@ -12,7 +13,11 @@ def wake_and_set(timing, keep_on=False):
 #   - send wol
 #   - wait until can ssh
 # - set shutdown
+    if not SshHandler.is_server_on():
+        print("sending magic packet!")
+        send_magic_packet('1c:86:0b:2b:71:a6','1c:86:0b:2b:71:a7')
     if not keep_on:
+        print(f"Setting shutdown for {timing.get_minutes()} minutes")
         shutdown(timing)
 
 def shutdown_now():
@@ -55,6 +60,7 @@ def command():
     timing = Timing()
     if action == "ON":
         timing = Timing(request.form.get("giorni"), request.form.get("ore"), request.form.get("minuti"))
+        timing.minutes = max(timing.minutes, 10)
         wake_and_set(timing)
     elif action == "OFF":
         shutdown_now()
