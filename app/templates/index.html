@@ -18,8 +18,9 @@
 </head>
 <body>
   <h2 id="txt">Server ---</h2>
-  <form method="POST" action="do_action">
-    <input id="btn_on_off" type="submit" value="---"/>
+  <form method="POST" action="/">
+      <input type="hidden" id="action_input" name="action" value="0">
+      <input id="btn_on_off" type="submit" value="---"/>
   </form>
 
   <script>
@@ -28,12 +29,16 @@
     
     var txt_elem = document.getElementById("txt");
     var btn_elem = document.getElementById("btn_on_off");
+    var status_input = document.getElementById("action_input");
+
     if(is_on){
-      txt_elem.innerHTML="Server acceso da " + time_on;
+      txt_elem.innerHTML="Server acceso: " + time_on;
       btn_elem.value="Spegni";
+      status_input.value="SPEGNI";
     } else {
       txt_elem.innerHTML="Server OFF";
       btn_elem.value="Accendi";
+      status_input.value="ACCENDI";
     }
   </script>
 

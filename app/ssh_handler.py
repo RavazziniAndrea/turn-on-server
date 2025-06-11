@@ -3,7 +3,7 @@ import socket
 
 class SshHandler:
     ssh = paramiko.SSHClient()
-    key_path = "/root/.ssh/id_ed25519"
+    key_path = "/home/ravazz/.ssh/id_ed25519"
     host = ""
     username = ""
     port=22
@@ -20,6 +20,9 @@ class SshHandler:
         key = paramiko.Ed25519Key(filename=SshHandler.key_path)
         SshHandler.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         SshHandler.ssh.connect(SshHandler.host, username=SshHandler.username , pkey=key)
+
+    def shutdown_via_ssh():
+        SshHandler.run_ssh_cmd("sudo shutdown now")
 
     def run_ssh_cmd(cmd) -> (str, str):
         if not SshHandler.is_server_on():
